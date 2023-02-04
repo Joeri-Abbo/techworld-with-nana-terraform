@@ -116,21 +116,13 @@ resource "aws_instance" "myapp-server" {
     Name : "${var.env_prefix}-server"
   }
 
-  user_data = <<EOF
-    #!/bin/bash
-    sudo yum update -y
-    sudo yum install -y docker
-    sudo systemctl start docker
-    sudo systemctl enable docker
-    sudo usermod -a -G docker ec2-user
-    docker run -p 8080:80 nginx
-  EOF
+  user_data = file("entry-script.sh")
 }
 
 output "aws_ami_id" {
-  value = data.aws_ami.latest-amazon-linux-image.id
+value = data.aws_ami.latest-amazon-linux-image.id
 }
 
 output "aws_public_ip" {
-  value = aws_instance.myapp-server.public_ip
+value = aws_instance.myapp-server.public_ip
 }
