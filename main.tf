@@ -4,6 +4,3 @@ provider "aws" {
   secret_key = ""
 }
 
-provider "linode" {
-  # Configuration options
-}
