@@ -1,5 +1,10 @@
 provider "aws" {
-  region     = "eu-west-3"
+  region = "eu-west-3"
+}
+
+variable "avail_zone" {
+  description = "availability zone"
+  default     = "eu-west-3a"
 }
 
 variable "cider_block" {
@@ -27,7 +32,7 @@ resource "aws_vpc" "development-vpc" {
 resource "aws_subnet" "development-subnet-1" {
   vpc_id            = aws_vpc.development-vpc.id
   cidr_block        = var.cider_block[1].cidr_block
-  availability_zone = "eu-west-3a"
+  availability_zone = var.avail_zone
   tags              = {
     Name        = var.cider_block[1].name
     Environment = var.environment
@@ -41,7 +46,7 @@ data "aws_vpc" "existing_vpc" {
 resource "aws_subnet" "development-subnet-2" {
   vpc_id            = data.aws_vpc.existing_vpc.id
   cidr_block        = var.cider_block[2].cidr_block
-  availability_zone = "eu-west-3a"
+  availability_zone = var.avail_zone
   tags              = {
     Name        = var.cider_block[2].name
     Environment = var.environment
