@@ -9,6 +9,7 @@ variable "env_prefix" {}
 variable "my_ip" {}
 variable "instance_type" {}
 variable "public_key_location" {}
+variable "private_key_location" {}
 
 resource "aws_vpc" "myapp-vpc" {
   cidr_block = var.vpc_cider_block
@@ -116,13 +117,37 @@ resource "aws_instance" "myapp-server" {
     Name : "${var.env_prefix}-server"
   }
 
-  user_data = file("entry-script.sh")
-}
+#  user_data = file("entry-script.sh")
 
-output "aws_ami_id" {
-value = data.aws_ami.latest-amazon-linux-image.id
+  connection {
+    type        = "ssh"
+    host        = self.public_ip
+    user        = "ec2-user"
+    private_key = file(var.private_key_location)
+  }
+
+  provisioner "file" {
+    source      = "entry-script.sh"
+    destination = "/home/ec2-user/entry-script.sh"
+  }
+
+  provisioner "remote-exec" {
+        inline = [
+          "sudo yum update -y",
+          "sudo yum install -y docker",
+          "sudo systemctl start docker",
+          "sudo systemctl enable docker",
+          "sudo usermod -a -G docker ec2-user",
+          "docker run -p 8080:80 nginx"
+        ]
+#    script = file("entry-script.sh")
+  }
+
+  provisioner "local-exec" {
+    command = "echo ${self.public_ip} > output.txt"
+  }
 }
 
 output "aws_public_ip" {
-value = aws_instance.myapp-server.public_ip
+  value = aws_instance.myapp-server.public_ip
 }
