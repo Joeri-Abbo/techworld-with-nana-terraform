@@ -4,16 +4,12 @@ provider "aws" {
   secret_key = ""
 }
 
-variable "subnet_cider_block" {
+variable "cider_block" {
   description = "subnet cidr block"
-  default     = "10.0.10.0/24"
-  type        = string
-}
-
-variable "vpc_cider_block" {
-  description = "vpc cidr block"
-  default     = "10.0.0.0/16"
-  type        = string
+  type        = list(object({
+    cidr_block = string
+    name       = string
+  }))
 }
 
 variable "environment" {
@@ -23,19 +19,19 @@ variable "environment" {
 }
 
 resource "aws_vpc" "development-vpc" {
-  cidr_block = var.vpc_cider_block
+  cidr_block = var.cider_block[0].cidr_block
   tags       = {
-    Name        = var.environment
+    Name        = var.cider_block[0].name
     Environment = var.environment
   }
 }
 
 resource "aws_subnet" "development-subnet-1" {
   vpc_id            = aws_vpc.development-vpc.id
-  cidr_block        = var.subnet_cider_block
+  cidr_block        = var.cider_block[1].cidr_block
   availability_zone = "eu-west-3a"
   tags              = {
-    Name        = "development-subnet-1"
+    Name        = var.cider_block[1].name
     Environment = var.environment
   }
 }
@@ -46,14 +42,10 @@ data "aws_vpc" "existing_vpc" {
 
 resource "aws_subnet" "development-subnet-2" {
   vpc_id            = data.aws_vpc.existing_vpc.id
-  cidr_block        = "172.31.48.0/20"
+  cidr_block        = var.cider_block[2].cidr_block
   availability_zone = "eu-west-3a"
   tags              = {
-    Name        = "dev-subnet-2"
+    Name        = var.cider_block[2].name
     Environment = var.environment
   }
-}
-
-output "dev-subnet-id" {
-  value = aws_subnet.development-subnet-1.id
 }
