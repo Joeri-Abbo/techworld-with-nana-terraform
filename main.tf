@@ -117,7 +117,7 @@ resource "aws_instance" "myapp-server" {
     Name : "${var.env_prefix}-server"
   }
 
-#  user_data = file("entry-script.sh")
+  #  user_data = file("entry-script.sh")
 
   connection {
     type        = "ssh"
@@ -132,16 +132,16 @@ resource "aws_instance" "myapp-server" {
   }
 
   provisioner "remote-exec" {
-        inline = [
-          "sudo yum update -y",
-          "sudo yum install -y docker",
-          "sudo chmod 666 /var/run/docker.sock",
-          "sudo systemctl start docker",
-          "sudo systemctl enable docker",
-          "sudo usermod -a -G docker ec2-user",
-          "docker run -p 8080:80 nginx"
-        ]
-#    script = file("entry-script.sh")
+    inline = [
+      "sudo yum update -y",
+      "sudo yum install -y docker",
+      "sudo chmod 666 /var/run/docker.sock",
+      "sudo systemctl start docker",
+      "sudo systemctl enable docker",
+      "sudo usermod -a -G docker ec2-user",
+      "docker run -p 8080:80 nginx"
+    ]
+    #    script = file("entry-script.sh")
   }
 
   provisioner "local-exec" {
