@@ -36,5 +36,4 @@ module "myapp-vpc" {
     "kubernetes.io/cluster/myapp-eks-cluster" = "shared"
     "kubernetes.io/role/internal-elb" = 1
   }
-
 }
